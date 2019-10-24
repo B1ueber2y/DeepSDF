@@ -29,7 +29,9 @@ def get_instance_filenames(data_source, split):
                     logging.warning(
                         "Requested non-existent file '{}'".format(instance_filename)
                     )
-                npzfiles += [instance_filename]
+                else:
+                    npzfiles += [instance_filename]
+    print('number of npz files', len(npzfiles))
     return npzfiles
 
 
