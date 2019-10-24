@@ -430,7 +430,7 @@ def main_function(experiment_directory, continue_from, batch_split):
 
         adjust_learning_rate(lr_schedules, optimizer_all, epoch)
 
-        for sdf_data, indices in sdf_loader:
+        for sdf_data, indices in tqdm(sdf_loader):
 
             batch_loss = 0.0
 
