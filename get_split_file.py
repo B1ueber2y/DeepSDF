@@ -1,13 +1,24 @@
 import os, sys
 import random
 import json
+import glob
 
 def save_json(fname, data_list, class_id):
     data = {}
     data['ShapeNetV2'] = {}
     data['ShapeNetV2'][class_id] = data_list
+    print(fname, len(data_list))
     with open(fname, 'w') as f:
         json.dump(data, f)
+
+def filter_list(basedir, shape_id_list):
+    new_list = []
+    for shape_id in shape_id_list:
+        fname_list = list(glob.iglob(os.path.join(basedir, shape_id) + '/**/*.obj')) + list(glob.iglob(os.path.join(basedir, shape_id) + '/*.obj'))
+        if len(fname_list) == 0:
+            continue
+        new_list.append(shape_id)
+    return new_list
 
 def get_split_file(shapenet_dir, class_info, style='normal'):
     class_name, class_id = class_info
@@ -27,6 +38,8 @@ def get_split_file(shapenet_dir, class_info, style='normal'):
         data_test = shape_id_list[num_train:]
     else:
         raise NotImplementedError
+    data_train = filter_list(path, data_train)
+    data_test = filter_list(path, data_test)
 
     fname_train = os.path.join('examples/splits/sv2_{}s_train.json'.format(class_name))
     fname_test = os.path.join('examples/splits/sv2_{}s_test.json'.format(class_name))
