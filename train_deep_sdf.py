@@ -13,7 +13,7 @@ import time
 
 import deep_sdf
 import deep_sdf.workspace as ws
-
+from tqdm import tqdm
 
 class LearningRateSchedule:
     def get_learning_rate(self, epoch):
@@ -313,8 +313,8 @@ def main_function(experiment_directory, continue_from, batch_split):
 
     logging.info("training with {} GPU(s)".format(torch.cuda.device_count()))
 
-    if torch.cuda.device_count() > 1:
-        decoder = torch.nn.DataParallel(decoder)
+    # if torch.cuda.device_count() > 1:
+    decoder = torch.nn.DataParallel(decoder)
 
     num_epochs = specs["NumEpochs"]
     log_frequency = get_spec_with_default(specs, "LogFrequency", 10)
@@ -420,11 +420,11 @@ def main_function(experiment_directory, continue_from, batch_split):
 
     logging.info("starting from epoch {}".format(start_epoch))
 
-    for epoch in range(start_epoch, num_epochs + 1):
+    for epoch in tqdm(range(start_epoch, num_epochs + 1)):
 
         start = time.time()
 
-        logging.info("epoch {}...".format(epoch))
+        # logging.info("epoch {}...".format(epoch))
 
         decoder.train()
 
@@ -523,11 +523,13 @@ if __name__ == "__main__":
         + "subbatches. This allows for training with large effective batch "
         + "sizes in memory constrained environments.",
     )
+    arg_parser.add_argument('--gpu', default='1,2', type=str, help='gpu id')
 
     deep_sdf.add_common_args(arg_parser)
 
     args = arg_parser.parse_args()
+    os.environ['CUDA_VISIBLE_DEVICES'] = args.gpu
 
     deep_sdf.configure_logging(args)
-
     main_function(args.experiment_directory, args.continue_from, int(args.batch_split))
+
